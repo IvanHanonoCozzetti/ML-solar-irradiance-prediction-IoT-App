@@ -183,5 +183,33 @@ This will install:
 2. Verify nodeJS installation by `node -v` and `npm -v` for the npm.
 
 
-### Putting everything together - pinout
-![pinout](pinout.png)
+### Putting everything together and pinout
+The connections can be done as follows (the actual pinout in the images below slightly differs due to slight limitations at Wokwi, and different breadboard settings).
+The important points are properly recognizing the Ground, 3.3V, and output reading pins, to avoid burning any components.<br>
+**Note that ideally** you want to set the photoresistor the furthest away from the LEDs, such that the light generated from the LEDs does not change the light reading data.<br>
+In the images below, we do not really see the "most" optimal position (the most optimal position is the photoresist on the further left corner, and the LEDs a bit closer to the Pico).
+- The LED's cathode (negative) is the "short leg", while the anode (positive) is the "long leg".<br>
+  The negative side can be directly connected to the ground rail (-) or through a jumper cable. The positive should be connected with a resistor (between 100ohm to 330ohm).<br>
+  The opposite side of the resistors should be connected to the Pico's pins through a jumper cable.<br>
+  The GPIOs used for the LEDs are 7 to 15 (the higher the GPIO, the higher the irradiance, the "redder" the LED should be, in series).<br>
+  From the Pico's side, a connection between the negative rail (`-` in blue) and any of the ground pins should be done.<br>
+- For the Photoresistor, one leg should be connected directly to a GPIO, in this case, GPIO 21.<br>
+  The other end should be connected to a 10kohm resistor, and the resistor connected to the positive rail.<br>
+  The positive rail, on the Pico's side, must be connected to the 3v3 OUT (output) pin, which is pin number 36.
+- The Digital temperature and humidity sensor DHT11 has 3 pins:
+  1. The most left pin (from the side shown both in the WokWI emulator and in the actual images, with a GREEN jumper), is the data reading pin: it connects to ADC 2 (which is GP28, which is pin number 34).
+  2. The center pin connects to the positive rail (red jumper), which is connected on the Pico's side to the 3v3 OUT (output) pin.
+  3. The most right side pin (connected with a black jumper) connects to the ground rail, connected on the Pico's end to any GND pin.
+     
+#### Pinout Emulator (better detail on the connections)
+*Note: Positive and negative rails are inverted to the one shown in the actual connection.*
+![pinout](images/pinout.png)
+
+#### Actual Pinout used (alternative, better space management)
+*NOTE: Positive and negative rails are inverted to the one shown in the emulator.*<br>
+*Pinout example 1*
+![actual_pinout](images/actual_pinout1.jpg)
+*Pinout example 2*
+![actual_pinout1](images/actual_pinout.jpg)
+*Pinout example 3*
+![actual_pinout2](images/actual_pinout2.jpg)
