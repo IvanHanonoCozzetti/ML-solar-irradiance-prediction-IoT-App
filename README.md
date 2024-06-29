@@ -76,3 +76,11 @@ Although the dataset does not have this feature, we will use it as a supporting 
 
 5.6.7.8. All these components are needed to connect and set the sensors and LEDs with the Pico's GPIO pins.
 
+
+#### Setting up Thonny (Linux machine or Linux VM, Debian-based OS):<be>
+
+#### Setting up Visual Studio Code (Linux machine or Linux VM, Debian-based OS):<br>
+
+
+### Putting everything together - pinout
+
