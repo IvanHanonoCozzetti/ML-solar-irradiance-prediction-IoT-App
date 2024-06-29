@@ -101,6 +101,30 @@ Visual Studio Code should be installed after that.
 2. To verify the installation you can run mosquitto on the same terminal by writing `mosquitto`.
 3. Then stop the terminal if it is already running (and run `sudo systemctl stop mosquitto & sudo pkill mosquitto` to verify it isn't running)
 
+#### Mosquitto .conf File
+You will need to modify the mosquitto configuration file with the IP address of the device being the broker:
+1. Open a terminal and run `ifconfig` and find the IP for that device
+2. Locate the conf file for mosquitto. It should be by default at: `/etc/mosquitto/mosquitto.conf`. You can find it by running `find /etc/mosquitto -name mosquitto.conf` on a terminal.
+3. Once you find the location, we will edit that file with the information below, by writing the following command `sudo nano /etc/mosquitto/mosquitto.conf` and pasting the settings below:
+```
+# Place your local configuration in /etc/mosquitto/conf.d/
+#
+# A full description of the configuration file is at
+# /usr/share/doc/mosquitto/examples/mosquitto.conf.example
+allow_anonymous true
+pid_file /run/mosquitto/mosquitto.pid
+
+persistence true
+persistence_location /var/lib/mosquitto/
+
+log_dest file /var/log/mosquitto/mosquitto.log
+
+include_dir /etc/mosquitto/conf.d
+# ADDED TO LISTEN TO OTHER DEVICES IN THE NETWORK
+listener 1883 YOUR-BROKER-IP
+```
+*NOTE: Replace YOUR-BROKER-IP with the device IP you will use as a broker, i.e. 192.168.xxx.xxx*
+
 #### Raspberry Pi Pico software setup (firmware, MicroPython and MQTT)
 **Firmware & MicroPython**
 1. Connect the USB to the Pico.
@@ -134,6 +158,29 @@ If the above throws an error, you can try this:
 5. On the left, you should see your local machine files and the Raspberry Pi Pico files.
 6. If no library called "lib" exists within the pico files, create a new directory with that name.
 7. Then, from the extracted umqtt folder, open it and copy the *umqtt* folder inside the *lib* directory.
+
+#### Python Libraries 
+Python should be installed on your machine. To verify this, run `python3 --version` on a terminal (otherwise install it from the [Python website](https://www.python.org/downloads/), this is a simple installation). <br>
+**NOTE:** You must have `Python 3.9` **or higher** Installed, as some code implementations in the thread run use methods only available since that version.<br>
+1. Clone the project from GitHub into the directory you with to have the project `git clone https://github.com/IvanHanonoCozzetti/ML-solar-irradiance-prediction-IoT-App.git`
+2. On a terminal, within the project's directory, run `pip install -r requirements.txt`<br>
+This will install:
+  - asyncio
+  - streamlit
+  - pandas
+  - numpy
+  - matplotlib
+  - seaborn
+  - requests
+  - scikit-learn
+  - plotly
+
+#### NodeJS
+1. Open a terminal and run the commands below:
+   - `sudo apt update`
+   - `sudo apt install nodejs`
+   - `sudo apt install npm`
+2. Verify nodeJS installation by `node -v` and `npm -v` for the npm.
 
 
 ### Putting everything together - pinout
