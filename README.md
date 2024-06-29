@@ -21,7 +21,7 @@ That will highly depend on the environment and operating system you are using.<b
 If you have worked with Linux before, I highly suggest doing it so in a Linux machine (anything Debian-based should be easy, such as Ubuntu).<br>
 Considering that, it should take between 2 to 5 hours to set everything up, depending on your experience working with programming environments, Linux, troubleshooting, and dependencies. 
 
-### Objective
+## Objective
 *Why this project?*<br>
 The main motivation was to try to build something complex, using Machine Learning, out of simple and available sensors and data.<br>
 Although this project is specifically set up to predict solar irradiance, a similar approach and steps could be taken to make other types of predictions: if you have other sensors, and
@@ -53,7 +53,7 @@ This project does cover and provide good insight into a wide range of areas:
 I would consider this to be a key point, as some of the breakthroughs in the computer science and engineering world are achieved due to open-source existence. <br>
 
 
-### Materials
+## Materials
 <!---TODO: ADD IMAGES-------------------------------------------------------------------------------------------------------------)-->
 | Item Name and Model | Price(SEK)/Price(EUR) | Seller | Image |
 |---|---|---|---|
@@ -76,11 +76,65 @@ Although the dataset does not have this feature, we will use it as a supporting 
 
 5.6.7.8. All these components are needed to connect and set the sensors and LEDs with the Pico's GPIO pins.
 
+## Computer setup
+To better organize instructions, I will here explain how to set the IDEs used, libraries, connectivity installations and everything else needed regarding setup.
 
+### IDEs
 #### Setting up Thonny (Linux machine or Linux VM, Debian-based OS):<be>
-
+1. Open a new terminal
+2. Enter the command `sudo apt install thonny`
+3. Pres 'Y' each time you are prompted/asked to confirm a download/installation
+That's it! You should be able to start Thonny from your installed programs.<br>
+After opening it, you only need to select your preferred language (for the sake of further instructions, select English)
+   
 #### Setting up Visual Studio Code (Linux machine or Linux VM, Debian-based OS):<br>
+1. Open [VScode website](https://code.visualstudio.com/) and click on the Download button on the top right of the screen.
+2. Select `.deb` file to start the download.
+3. Open a new terminal window and move to the Downloads directory by entering `cd Downloads`.
+4. Install VScode by writing the command `sudo dpkg -i code_1.90...amd64.deb` (you need to write `sudo dpkg -i` + the name of the downloaded file in step 2, which is a `.deb` file).
+Visual Studio Code should be installed after that.
+
+#### Mosquitto Installation
+1. Simply run the following commands in a new terminal<br>
+`sudo apt install mosquitto`<br>
+`sudo apt-get update`<br>
+2. To verify the installation you can run mosquitto on the same terminal by writing `mosquitto`.
+3. Then stop the terminal if it is already running (and run `sudo systemctl stop mosquitto & sudo pkill mosquitto` to verify it isn't running)
+
+#### Raspberry Pi Pico software setup (firmware, MicroPython and MQTT)
+**Firmware & MicroPython**
+1. Connect the USB to the Pico.
+2. Then press and hold the *bootsel* white button right next to the USB connection.
+3. While still holding the *bootsel* button, connect the Pico to your Machine's USB port (and let go of the bootsel button).<br>
+- If you are using a Linux machine, the device should be now recognized.<br>
+- If you are using a Virtual Machine: Open VirtualBox and click on the Settings button on the top right -> Go to USB ->  On the right, click on the `+` icon to add a new USB and select the Raspberry Pi Pico. Then press the OK button (you may need to re-do the 3 steps before for the VM to recognize it).
+4. Open Thonny. On the top, click the `Run` drop-down menu and select `Configure interpreter...`
+5. On the top *Which kind of interpreter should Thonny use for running your code?* select `MicoPython (Raspberry Pi Pico)`
+6. At the bottom right click on *Install or Update MicoPython*
+7. Select the following settings:
+  - Target volume: `RPI-RP2`
+  - MicoPython variant: `Raspberry Pi Pico WH`
+  - Click **Install**
+  - Close all windows once it is **Done**, disconnect the USB and connect it again.
+  - *Note, on a Virtual Machine you will need to repeat the process of adding a new `+` USB device, which will now called MicoPython board in FS mode, or something around those words. Then, in VM you may need again to disconnect and connect the device once again*.
+To verify the Pico is recognized, you should click on `Local Python 3` on the bottom right and change it to `MicoPython (Raspberry Pi Pico)`
+
+**Mqtt**
+1. Open Thonny
+2. Click on TOols top right
+3. Manage Plug-ins
+4. Write on the search bar umqtt.simple and click on `micopython.umqtt.simple` and click install
+
+**Mqtt Alternative**<br>
+If the above throws an error, you can try this:
+1. Open this [link](https://pypi.org/project/micropython-umqtt.simple/#files) (https://pypi.org/project/micropython-umqtt.simple/#files).
+2. Download `micropython-umqtt.simple-1.3.4.tar.gz` by clicking on that link.
+3. On the Downloads folder, rick click, and "extract".
+4. Open Thonny, click on the top bar **view**, and select **files**.
+5. On the left, you should see your local machine files and the Raspberry Pi Pico files.
+6. If no library called "lib" exists within the pico files, create a new directory with that name.
+7. Then, from the extracted umqtt folder, open it and copy the *umqtt* folder inside the *lib* directory.
 
 
 ### Putting everything together - pinout
-
+![pinout](pinout.png)
