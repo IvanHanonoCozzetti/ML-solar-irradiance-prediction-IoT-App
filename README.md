@@ -54,7 +54,6 @@ I would consider this to be a key point, as some of the breakthroughs in the com
 
 
 ## Materials
-<!---TODO: ADD IMAGES-------------------------------------------------------------------------------------------------------------)-->
 | Item Name and Model | Price(SEK)/Price(EUR) | Seller | Image |
 |---|---|---|---|
 | 1. Raspberry Pi Pico WH | 109  /  9,60| [ElectroKit](https://www.electrokit.com/raspberry-pi-pico-wh) | |
@@ -217,14 +216,10 @@ In the images below, we do not really see the "most" optimal position (the most 
 Regarding the setup, it can indeed be used in production as the configuration or components present no limitation for the practical implementation.<br>
 Furthermore, with the availability of some additional sensors, one could expand the current implementation. As an example, the features fetched from the API (pressure, wind speed, and direction), could be introduced to this setup (some of these sensors are a bit more complicated to get, but it is possible).
 
-#### Electrical calculations TODO
-
-
-
 ### Platform
 The platform used is [Streamlit](https://streamlit.io/).<br>
 Streamlit is a great platform that allows for deploying web applications with data-based needs in pure Python for **free** (although, with only some basic HTML and CSS knowledge).<br>
-![actual_pinout2](images/scatt_plot.png)
+![scatter_dash](images/scatt_plot.png)
 The strongest advantage, and my motivation for using it, is that has a great range of options and tools to create and generate simple and interactive plots. Since the project's key concept is ML predictions and model's results (such as RMSE, prediction history, and other data science based concepts), Streamlit is a great fit.<br>
 In addition, deployment can be done very easily into a cloud-hosted approach (in the past with Heroku, but now even with their own free services, one can deploy a Github project directly from the repository).<br>
 Since the current implementation is hosted locally, using a Linux machine with Mosquitto and MQTT, the code, machine learning computations, and data display are also locally hosted. <br>
@@ -356,11 +351,26 @@ Which returns future aggregating results from the given co-routines (in which th
 This way, coroutines will be wrapped in and scheduled in the event loop.
 
 
+### Presenting Data, Connectivity, Dashboard, and Final Design
+The images below represent the settings and data presentation during the prototype as well as the final design.<be>
+On the left, the real-time data is displayed, while the main predicted details are in the center of the web application.<be>
+Scatter plots are interactive, as we can see from the full-screen settings.
 
-<!--- ### Transmitting the data / connectivity --------------------------------------------------------------------------------------------------------------->
-<!--- ### Presenting the data --------------------------------------------------------------------------------------------------------------->
-<!---  Finalizing the design --------------------------------------------------------------------------------------------------------------->
-
+#### Main Dashboard with Real-Time Data
+![dashboard1](/images/dashboard/dashboard1.png)
+#### Dashboard Prediction Parameters
+![dashboard2](/images/dashboard/dashboard2.png)
+#### Dashboard Prediction Details Barchart
+![dashboard3](/images/dashboard/dashboard3.png)
+#### Dashboard RMSE and Predicted Values
+![dashboard4](/images/dashboard/dashboard4.png)
+#### Dashboard Predictions Scatter Plot
+![scatt_predictins](/images/dashboard/scatt_predictins.png)
+#### Pico print-out setup
+![pico_setup](/images/dashboard/pico_setup.png)
+#### Pico Prediction Request and Response
+![pico_data](/images/dashboard/pico_data.png)
+    
 
 ---
 
