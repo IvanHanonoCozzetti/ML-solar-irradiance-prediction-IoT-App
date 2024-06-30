@@ -80,7 +80,7 @@ Although the dataset does not have this feature, we will use it as a supporting 
 To better organize instructions, I will here explain how to set the IDEs used, libraries, connectivity installations and everything else needed regarding setup.
 
 ### IDEs
-#### Setting up Thonny (Linux machine or Linux VM, Debian-based OS):<be>
+#### Setting up Thonny (Linux machine or Linux VM, Debian-based OS):<br>
 1. Open a new terminal
 2. Enter the command `sudo apt install thonny`
 3. Pres 'Y' each time you are prompted/asked to confirm a download/installation
@@ -213,3 +213,157 @@ In the images below, we do not really see the "most" optimal position (the most 
 ![actual_pinout1](images/actual_pinout.jpg)
 *Pinout example 3*
 ![actual_pinout2](images/actual_pinout2.jpg)
+
+Regarding the setup, it can indeed be used in production as the configuration or components present no limitation for the practical implementation.<br>
+Furthermore, with the availability of some additional sensors, one could expand the current implementation. As an example, the features fetched from the API (pressure, wind speed, and direction), could be introduced to this setup (some of these sensors are a bit more complicated to get, but it is possible).
+
+#### Electrical calculations TODO
+
+
+
+### Platform
+The platform used is [Streamlit](https://streamlit.io/).<br>
+Streamlit is a great platform that allows for deploying web applications with data-based needs in pure Python for **free** (although, with only some basic HTML and CSS knowledge).<br>
+![actual_pinout2](images/scatt_plot.png)
+The strongest advantage, and my motivation for using it, is that has a great range of options and tools to create and generate simple and interactive plots. Since the project's key concept is ML predictions and model's results (such as RMSE, prediction history, and other data science based concepts), Streamlit is a great fit.<br>
+In addition, deployment can be done very easily into a cloud-hosted approach (in the past with Heroku, but now even with their own free services, one can deploy a Github project directly from the repository).<br>
+Since the current implementation is hosted locally, using a Linux machine with Mosquitto and MQTT, the code, machine learning computations, and data display are also locally hosted. <br>
+However, one of the key advantages of StreamLit is the ease of deploying these projects if wanted.
+
+To use Streamlit, one has to learn some of their [documentation](https://docs.streamlit.io/) basics, but this is very straightforward and easy to learn.<br>
+In addition, one can introduce HTML/CSS with ease into the `st.write`, as well as use special Markdown features offered in Streamlit.<br> 
+
+Regarding **disadvantages**, Streamlit has some limitations (or it does not have any straightforward solutions) regarding multiprogramming, multithreading, and mainly parallelism.<br>
+Running the real-time data while processing the machine learning model predictions and displaying those at the same time was a challenge, as there is no embedded support for some of these multitasking issues.<br>
+With that said, **there are possible solutions**, but it isn't something that you will find in their documentation, but rather solutions based on OS concepts (without some knowledge of asynchronous/synchronous programming, parallelism, concurrency, threads/thread-pools, deadlocks, semaphores and so on, it is not so easy to handle these challenges).
+
+However, this of course depends on the nature of the project at hand. If you only need to display real-time data, I imagine this is not going to be a big issue.<br>
+Also, the major idea of this platform is for users to input data, process a prediction (as an example), and get a more sophisticated view from a data science, analysis, and statistical point of view.<br>
+Finally, if you are very bad at, or really dislike, the front-end of making a web application, and you have a bad sense of artistic design, Streamlit facilitates and helps you out on this.
+
+
+
+
+### The code
+
+Code-wise, we can divide this project into a few levels: connectivity, data transmission, data processing, processes, and visualization.<br>
+For the sake of simplicity (and not going too deep into any concept), we will cover general data processing, processes/tasks (threads and asynchronous programming), and basic visualization in Streamlit.<br>
+This is because most of the connectivity and MQTT client setup and communication is very standard, as in almost any other wifi-based MQTT communication.<br>
+
+First, we will cover a bit of asynchronous programming, implemented in the program with the keywords `async` and `await`.<br>
+Initially, the receiving and processing of data, as well as  the real-time display of data, were handled with **Threads**. Unfortunately, due to issues in processing the threads and displayed data with Streamlit, asynchronous processes worked best, achieving a concurrency with very small delays between real-time and predicted data.<br>
+This is achieved because we still continue working with threads on the back-end of the program, as the **machine learning models and their predictions are processed with a separate thread within the asynchronous defined method** (mixing these two can become very messy very quickly).<br>
+
+For now, the important things to understand are that:
+- `import asyncio` to use the appropriate library
+- `async def` is used to declare an asynchronous function, which is needed in order to implement the `await` in the method.
+- `await` allows us to pause the execution of a function, until a *[coroutine](https://en.wikipedia.org/wiki/Coroutine)* is completed, letting us run other tasks instead of just waiting.
+  
+Let us look into the `predict_and_display()` method that reads data, runs predictions within the asynchronous method in a thread (the dots ... represent removed code that is not strictly necessary for this explanation):
+```python=
+async def predict_and_display():
+	# Subscribing to the Broker
+	command2 = "mosquitto_sub -h '192.168.xxx.xxx' -t 'HumidTempPredict'"
+	# process2 = subprocess.Popen(command2, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=1, universal_newlines=True)
+	process2 = await asyncio.create_subprocess_shell(command2, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
+  ...
+	while True:
+		output = await process2.stdout.readline()
+		await asyncio.sleep(0.5)
+		if output:
+			...
+			output = output.decode()
+			...
+			strip_output = output.strip().split(',')
+			curren_humidity_val = float(strip_output[0])
+			current_temp_celsius = float(strip_output[1])
+			current_brightness = float(strip_output[2])
+			...
+			current_temp_farenheit = (current_temp_celsius*1.8)+32
+			...
+			updated_params = update_parameters(curren_humidity_val, current_temp_farenheit)
+			# to_thread is a function in python 3.9 that asynchronously runs a function in a separate thread
+			# This is needed to handle the computation time that it takes for the ML to run and predict
+			# And the main adventage is that we can continue showing real-time data while running the models
+			df_models = await asyncio.to_thread(run_data, updated_params)
+
+			# If it is between dark and very dark, e.g. 10,000 until 30,000 -> weight is prediction is zero. 
+			# If it is very bright, e.g. 65,000 -> weight is prediction * 1.325. 
+			if current_brightness > 30000:
+				bright_weight = ((current_brightness/100000)*0.5)+1
+			else:
+				bright_weight = 1 # in other words, no weight: this is because anything below 30k is pretty dark...
+
+			final_prediction = df_models[0][0]*bright_weight
+			total_predictions.append(final_prediction)
+			samples.append(counter)
+			write_results(updated_params, current_brightness, bright_weight, current_temp_celsius, df_models[0][0], final_prediction)  # Adding brightness weight
+			...
+			show_ML(df_models[1], total_predictions, samples) # Plots and models
+			# Publishing prediction results, for the Pico to read these results
+			command3 = f"mosquitto_pub -h '192.168.0.104' -t 'PredictionResults' -m '{final_prediction}'"
+			process3 = await asyncio.create_subprocess_shell(command3, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
+		else:
+			break
+		await asyncio.sleep(0.5)
+
+    # Once the process is stopped, to "clean" the subprocess
+	process2.stdout.close()
+	return_code = process2.wait()
+	if return_code:
+		raise subprocess.CalledProcessError(return_code, command2)
+```
+
+As we can see on `command2`,`process2`,`command3`,`process3`, we are there running a shell command on Mosquitto to subscribe at first to a topic (*HumidTempPredict*).<br>
+within the *command* variables, we see general Mosquitto parameters:
+- `mosquitto_sub` indicates that this command is for subscribing
+- `mosquitto_pub` indicates that this command is for publishing
+- `-h` to indicate a hostname
+- `192.168.0.104` is the IP of the host used
+- `-t` is to denote the topic
+- `HumidTempPredict`,`PredictionResults` are the topics used <br>
+The *processes* variables include some general process parameters such as:
+- `stdout=subprocess.PIPE` to redirect the output of the process to a pipe, for reading ouput
+- `stdout=subprocess.PIPE` to redirect any errors of the process to a pipe <br>
+
+Further into the code, we notice that these processes, as well as the reading and outputting of the subscribed data present `await` keywords that denote and allow those "sub-processes" to concurrently run with each other.<br>
+These are also used in the `await.sleep`, instead of using the standard `time.sleep`. This is because of time.sleep blocks an entire thread, disallowing any other execution. On the other hand, await.sleep only pauses the coroutine currently running. This allows all other coroutines to continue executing without stopping other processes' flow.<br>
+
+Then, we land on the line that calls the prediction method, which runs the ML algorithms and produces the output in a separate **thread**:
+```python= df_models = await asyncio.to_thread(run_data, updated_params)```<br>
+This is needed to handle the computation time that it takes for the ML to run and predict in a much more efficient manner. Without this method of calling the predictive method, the entire processing and displaying of data would be paused (or at the very least the displaying of the data/results), as Streamlit won't allow the real-time data to be displayed while a different asynchronous task is running the computation.<br>
+The main advantage and necessity is that we can continue showing real-time data while running the ML models, and then continue with the prediction display:
+1. Real-time data is displayed within an asynchronous task
+2. The prediction method (showed above) awaits any new data published on the topic of predictions
+3. Once a new prediction request arrives on the top, from a different client, the asynchronous task for predictions runs, decodes the information, and creates a thread to run the ML models and predict
+4. While this thread is running on the back, and no output has been produced yet, the `await` call indicates that we will wait for the prediction results, while the real-time data can continue flowing into the dashboard
+5. Once the prediction is done and results are out from the ML models, the predicted asynchronous method will complete its execution.
+6. Once the execution is completed (meaning that predictions are displayed to the dashboard, plots are generated, tables are updated, historical data updated, and **prediction results are published to the broker for the Pico to receive them**) the real-time display continues.
+
+This process is efficient, and with this approach (even though Streamlit does not support this type of real-time multi-process approach), we run the background tasks in [parallel](https://en.wikipedia.org/wiki/Parallel_computing) and display them in [concurrency](https://en.wikipedia.org/wiki/Concurrency_(computer_science)) but without almost no delay, making it efficient and unnoticeable.<br>
+Note that `to_thread` is a function in Python 3.9, so older versions won't have it.
+
+The `realtime_data_sidebar()` works similarly, however, with higher concerns of real-time data display.
+
+Finally, both main tasks (by main, I simply mean the tasks that produced dashboard data, while subscribing and publishing data) are called from the main function:
+```python=
+async def main():
+	realtime_sidebar = asyncio.create_task(realtime_data_sidebar()) # Task1
+	pred_and_display = asyncio.create_task(predict_and_display())   # Task2
+	await asyncio.gather(pred_and_display, realtime_sidebar)
+```
+Which returns future aggregating results from the given co-routines (in which they must share the same event loop).<br>
+This way, coroutines will be wrapped in and scheduled in the event loop.
+
+
+
+<!--- ### Transmitting the data / connectivity --------------------------------------------------------------------------------------------------------------->
+<!--- ### Presenting the data --------------------------------------------------------------------------------------------------------------->
+<!---  Finalizing the design --------------------------------------------------------------------------------------------------------------->
+
+
+---
+
+
+
+
