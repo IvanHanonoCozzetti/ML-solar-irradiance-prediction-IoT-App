@@ -182,7 +182,7 @@ This will install:
 2. Verify nodeJS installation by `node -v` and `npm -v` for the npm.
 
 
-### Putting everything together and pinout
+## Putting everything together and pinout
 The connections can be done as follows (the actual pinout in the images below slightly differs due to slight limitations at Wokwi, and different breadboard settings).
 The important points are properly recognizing the Ground, 3.3V, and output reading pins, to avoid burning any components.<br>
 **Note that ideally** you want to set the photoresistor the furthest away from the LEDs, such that the light generated from the LEDs does not change the light reading data.<br>
@@ -216,7 +216,7 @@ In the images below, we do not really see the "most" optimal position (the most 
 Regarding the setup, it can indeed be used in production as the configuration or components present no limitation for the practical implementation.<br>
 Furthermore, with the availability of some additional sensors, one could expand the current implementation. As an example, the features fetched from the API (pressure, wind speed, and direction), could be introduced to this setup (some of these sensors are a bit more complicated to get, but it is possible).
 
-### Platform
+## Platform
 The platform used is [Streamlit](https://streamlit.io/).<br>
 Streamlit is a great platform that allows for deploying web applications with data-based needs in pure Python for **free** (although, with only some basic HTML and CSS knowledge).<br>
 ![scatter_dash](images/scatt_plot.png)
@@ -238,8 +238,7 @@ Finally, if you are very bad at, or really dislike, the front-end of making a we
 
 
 
-
-### The code
+## The code
 
 Code-wise, we can divide this project into a few levels: connectivity, data transmission, data processing, processes, and visualization.<br>
 For the sake of simplicity (and not going too deep into any concept), we will cover general data processing, processes/tasks (threads and asynchronous programming), and basic visualization in Streamlit.<br>
@@ -351,7 +350,7 @@ Which returns future aggregating results from the given co-routines (in which th
 This way, coroutines will be wrapped in and scheduled in the event loop.
 
 
-### Transmitting the data & connectivity
+## Transmitting the data & connectivity
 Connections and data communication happen via wifi (in this concrete implementation, a LoRa module could be used in a very similar way).<br>
 As provided before, [Mosquitto](https://mosquitto.org/) is used to communicate with clients through the broker MQTT. Mosquitto is lightweight and very useful for both low-power devices, as well as servers.<br>
 
@@ -429,7 +428,7 @@ If we were going to consider the second idea mentioned in the [Objective](#objec
 This is because LoRa can cover very long ranges and still be low consumption in comparison to wifi.  Possibly, one could consider LTE as an alternative option. **However**, high-speed data transmission is not a must for this project, therefore, making low-power consumption more attractive, such as with LoRa.<br>
 
 
-### Presenting Data, Dashboard, and Final Design
+## Presenting Data, Dashboard, and Final Design
 
 #### Data handling
 It must be noted that this implementation does not use any database. In practice, is designed to work and perform in real-time only.<br>
@@ -451,13 +450,13 @@ As we see, a lot of triggers exist here.<br>
 2.  An initial ML model is run to "cache-in" the initial training building of the models.<br>
 3.  The web layout data is introduced and launched into the application.<br>
 4.  Asynchronously, real-time data from the pico is received.<br>
-5.  Data is decoded, splited, and the appropriate side-bar plots are produced, updating every 0.5 seconds.<br>
+5.  Data is decoded, split, and the appropriate side-bar plots are produced, updating every 0.5 seconds.<br>
 6.  At the same time, we `await` any prediction requests. Once a request arrives, the same process happens of decoding and splitting.<br>
-7.  Then, a separate thread is created, in charge of running the ML models, producing RMSE from a 20% testing set and making a prediction.<br>
+7.  Then, a separate thread is created, in charge of running the ML models, producing RMSE from a 20% testing set, and making a prediction.<br>
 8.  In the meantime, the thread is instantiated within an asynchronous call `await`, resuming the real-time display on the dashboard.<br>
 9.  Once the thread completes, we get RMSE results from the randomly split dataset, and predictions are out.<br>
 10.  The CPU time is now given to the prediction asynchronous task to show the results as text, table, and plots, including historical results update (scatter plot  at the bottom).<br>
-11.  Once results are out onto the dashboard, the information of the results is published to the appropiate broker.<br>
+11.  Once results are out onto the dashboard, the information of the results is published to the appropriate broker.<br>
 12.  The process continues and repeats.<br><br>
    
 B. **Pico**<br>
@@ -513,7 +512,7 @@ Scatter plots are interactive, as we can see from the full-screen settings.<br>
 ![pico_data](/images/dashboard/pico_data.png)
 
 
-### Finalizing The Design
+## Finalizing The Design
 To avoid making this document even longer, I have not included any additional images, as all images shown regarding the dashboard, code, and pico pinout in the tasks above, represent the **final** version.<br>
 Only the video presentation will be shown by the end.<br>
 
