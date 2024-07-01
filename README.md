@@ -255,7 +255,7 @@ For now, the important things to understand are that:
 - `await` allows us to pause the execution of a function, until a *[coroutine](https://en.wikipedia.org/wiki/Coroutine)* is completed, letting us run other tasks instead of just waiting.
   
 Let us look into the `predict_and_display()` method that reads data, runs predictions within the asynchronous method in a thread (the dots ... represent removed code that is not strictly necessary for this explanation):
-```python=
+```python
 async def predict_and_display():
 	# Subscribing to the Broker
 	command2 = "mosquitto_sub -h '192.168.xxx.xxx' -t 'HumidTempPredict'"
