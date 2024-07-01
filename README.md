@@ -431,10 +431,10 @@ This is because LoRa can cover very long ranges and still be low consumption in 
 
 
 ### Presenting Data, Dashboard, and Final Design
-The images below represent the settings and data presentation during the prototype as well as the final design.<be>
-On the left, the real-time data is displayed, while the main predicted details are in the center of the web application.<be>
-Scatter plots are interactive, as we can see from the full-screen settings.
-
+The images below represent the settings and data presentation during the prototype as well as the final design.<br>
+On the left, the real-time data is displayed, while the main predicted details are in the center of the web application.<br>
+Scatter plots are interactive, as we can see from the full-screen settings.<br>
+ 
 #### Main Dashboard with Real-Time Data
 ![dashboard1](/images/dashboard/dashboard1.png)
 #### Dashboard Prediction Parameters
@@ -450,6 +450,9 @@ Scatter plots are interactive, as we can see from the full-screen settings.
 #### Pico Prediction Request and Response
 ![pico_data](/images/dashboard/pico_data.png)
     
+It must be noted that this implementation does not use any database. In practice, is designed to work and perform in real-time only.<br>
+There is an already implemented approach to analyze and work with `CSV` data. If desired, one could use this same implementation to download the received data (this means simply copying and pasting the `output.csv` approach to instead print the data read from the pico). This is not implemented simply because it is not relevant to the project.<br>
+
 
 ---
 
