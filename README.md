@@ -429,8 +429,70 @@ If we were going to consider the second idea mentioned in the [Objective](#objec
 This is because LoRa can cover very long ranges and still be low consumption in comparison to wifi.  Possibly, one could consider LTE as an alternative option. **However**, high-speed data transmission is not a must for this project, therefore, making low-power consumption more attractive, such as with LoRa.<br>
 
 
-
 ### Presenting Data, Dashboard, and Final Design
+
+#### Data handling
+It must be noted that this implementation does not use any database. In practice, is designed to work and perform in real-time only.<br>
+There is an already implemented approach to analyze and work with `CSV` data. If desired, one could use this same implementation to download the received data (this means simply copying and pasting the `output.csv` approach to instead print the data read from the pico). This is not implemented simply because it is not relevant to the project.<be>
+
+#### Automation and Triggers of Data
+This project implements full-duplex transmission from both the RP Pico client and the Machine Learning Predictor & web application handler.<br>
+This means that there is a lot of data flowing back and forth between clients through the broker:<BR>
+A. **Machine Learning Predictor and WebApp Client (Linux machine hosted)**
+   - Subscribes to real-time data published by the Pico client
+   - Subscribes to **prediction requests** made by the Pico client
+   - Reads real-time data from APIs
+   - Publishes prediction results
+   - Displays real-time data from Pico & APIs, predictions, plots, and machine learning models' parameters/performance
+   - Web host & server
+
+As we see, a lot of triggers exist here.<br>
+1.  The host starts, launching the web application on the browser.<br>
+2.  An initial ML model is run to "cache-in" the initial training building of the models.<br>
+3.  The web layout data is introduced and launched into the application.<br>
+4.  Asynchronously, real-time data from the pico is received.<br>
+5.  Data is decoded, splited, and the appropriate side-bar plots are produced, updating every 0.5 seconds.<br>
+6.  At the same time, we `await` any prediction requests. Once a request arrives, the same process happens of decoding and splitting.<br>
+7.  Then, a separate thread is created, in charge of running the ML models, producing RMSE from a 20% testing set and making a prediction.<br>
+8.  In the meantime, the thread is instantiated within an asynchronous call `await`, resuming the real-time display on the dashboard.<br>
+9.  Once the thread completes, we get RMSE results from the randomly split dataset, and predictions are out.<br>
+10.  The CPU time is now given to the prediction asynchronous task to show the results as text, table, and plots, including historical results update (scatter plot  at the bottom).<br>
+11.  Once results are out onto the dashboard, the information of the results is published to the appropiate broker.<br>
+12.  The process continues and repeats.<br><br>
+   
+B. **Pico**<br>
+- Publishes real-time data every 0.5 seconds
+- Publishes data every 30 seconds requesting a prediction
+- Subscribes to the prediction results published by the ML client
+
+The prediction received from the ML client is printed out on the terminal. Then, depending on the solar irradiance value (from 0 to 1800), it turns on the LED that is sorted in sequence.<br>
+In other words, if the solar irradiance is within the lowest values (between 0 and 200), it will trigger the very first green LED for 5 seconds, and then turn it off.<br>
+Similarly, as solar irradiance predictions are higher, the LEDs towards the follow and red colors turn on (the highest being above 1600, the very last red LED).<br>
+This is handled by the means of a dictionary, with tuples as key ranges, and values denoting the GPIO pin, which is also in series to the LEDs order:
+```python
+irradiance_level_led = {
+    (0,200):7,
+    (201,400):8,
+    (401,600):9,
+    (601,800):10,
+    (801,1000):11,
+    (1001,1200):12,
+    (1201,1400):13,
+    (1401,1600):14,
+    (1601,1800):15,
+}
+
+def callback_prediction(topic, msg):
+    ...
+    # Based on the 'irradiance_level_led' dictionary, we check the tuple value, and if in range assign it to that LED Gpio to turn it on
+    for key, value in irradiance_level_led.items():
+        if key[0] <= predicted_val <= key[1]:
+            led=Pin(value, Pin.OUT)
+            led.on()
+            time.sleep(5)
+            led.off()
+```
+
 The images below represent the settings and data presentation during the prototype as well as the final design.<br>
 On the left, the real-time data is displayed, while the main predicted details are in the center of the web application.<br>
 Scatter plots are interactive, as we can see from the full-screen settings.<br>
@@ -449,10 +511,6 @@ Scatter plots are interactive, as we can see from the full-screen settings.<br>
 ![pico_setup](/images/dashboard/pico_setup.png)
 #### Pico Prediction Request and Response
 ![pico_data](/images/dashboard/pico_data.png)
-    
-It must be noted that this implementation does not use any database. In practice, is designed to work and perform in real-time only.<br>
-There is an already implemented approach to analyze and work with `CSV` data. If desired, one could use this same implementation to download the received data (this means simply copying and pasting the `output.csv` approach to instead print the data read from the pico). This is not implemented simply because it is not relevant to the project.<br>
-
 
 ---
 
