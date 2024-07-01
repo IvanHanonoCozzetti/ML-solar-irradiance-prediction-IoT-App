@@ -100,7 +100,7 @@ Visual Studio Code should be installed after that.
 2. To verify the installation you can run mosquitto on the same terminal by writing `mosquitto`.
 3. Then stop the terminal if it is already running (and run `sudo systemctl stop mosquitto & sudo pkill mosquitto` to verify it isn't running)
 
-#### Mosquitto .conf File
+#### Mosquitto Configuration File
 You will need to modify the mosquitto configuration file with the IP address of the device being the broker:
 1. Open a terminal and run `ifconfig` and find the IP for that device
 2. Locate the conf file for mosquitto. It should be by default at: `/etc/mosquitto/mosquitto.conf`. You can find it by running `find /etc/mosquitto -name mosquitto.conf` on a terminal.
@@ -351,7 +351,54 @@ Which returns future aggregating results from the given co-routines (in which th
 This way, coroutines will be wrapped in and scheduled in the event loop.
 
 
-### Presenting Data, Connectivity, Dashboard, and Final Design
+### Transmitting the data & connectivity
+Connections and data communication happen via wifi (in this concrete implementation, LoRaWAN could be used in a very similar way).<br>
+As provided before, [Mosquitto](https://mosquitto.org/) is used to communicate with clients through the broker MQTT. Mosquitto is lightweight and very useful for both low-power devices, as well as servers.<br>
+
+Regarding network requirements, it is important to note that you may need to set a network using 2.4GHz and not 5GHz since the RP Pico WH won't support 5GHz. <br>
+
+First, be sure to have completed all prior setup steps, including cloning this repository and the [Mosquitto Configuration File](#mosquitto-configuration-file) section, to set the configuration file.<br>
+The communication of MQTT from the machine learning client is performed through commands and sub-processes, as provided [here](#the-code).<br>
+Subscribing to a topic in the following way:
+```python
+command2 = "mosquitto_sub -h '192.168.xxx.xxx' -t 'HumidTempPredict'"
+process2 = await asyncio.create_subprocess_shell(command2, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
+```
+And publishing as follows:
+```python
+command3 = f"mosquitto_pub -h '192.168.xxx.xxx' -t 'PredictionResults' -m '{final_prediction}'"
+process3 = await asyncio.create_subprocess_shell(command3, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
+```
+From the RP Pico's side, the MQTT client calls are more simple, and nothing out of the unusual.
+Setup:
+```python
+# Netowrk setup
+WIFI_SSID = "yourwifissid"
+WIFI_PASSWORD = "yourwifipassowrd"
+# MQTT client with broker configuration
+MQTT_BROKER = "192.168.xxx.xxx"
+MQTT_PORT = 1883
+MQTT_TOPIC = "HumidTempPredict"
+MQTT_TOPIC2 = "HumidTempRealTime"
+MQTT_TOPIC_SUB = "PredictionResults"
+# CLient setup
+client = MQTTClient("Pico_Client", MQTT_BROKER, MQTT_PORT)
+client_listener = MQTTClient("Pico_Listener", MQTT_BROKER, MQTT_PORT)
+```
+The MQTT port should be 1883.<br>
+**More importantly, the IP address denoted here and from the machine learning/dashboard client should be that of the device set as the broker in your [Mosquitto Configuration File](#mosquitto-configuration-file).**<br>
+Note that if you are using DHCP and dynamic settings, the IP of that device can happen to change automatically. If you want to be sure that the IP for the broker doesn't change, then you should set that device's IP static.<br>
+To verify the IP address, you can run `ifconfig` in Linux/Mac or `ipconfig` in a Windows terminal.
+
+As you can notice, there 3 topics:
+1. `MQTT_TOPIC = "HumidTempPredict"`: Is for prediction requests. These requests are made **every 30 seconds**.<br>
+A great advantage of this approach is that predictions are not deliberately made from the machine learning/dashboard host client, but rather upon the other client's requests (in this case the pico)
+2. `MQTT_TOPIC2 = "HumidTempRealTime"`: This is the real-time data, and is sent **every 0.5 seconds**.<br>
+Now, these two topics are **concurrent**, meaning that once a prediction request is sent, real-time data is not sent (this is instantly done, so it does not reflect any delay on the dashboard, it is smoothly done).
+3. `MQTT_TOPIC_SUB = "PredictionResults"`: This topic is executed through the second client settings, called *client_listener*. This topic is for reading the machine learning predictions produced by the machine learning client.<br> 
+**Topics 1 and 2 run in parallel with topic 3. This is achieved by the simple implementation of threads in Micropython, which allows us to run the publishing-related methods in core zero, while subscribing and presenting the result with core 1**.
+
+### Presenting Data, Dashboard, and Final Design
 The images below represent the settings and data presentation during the prototype as well as the final design.<be>
 On the left, the real-time data is displayed, while the main predicted details are in the center of the web application.<be>
 Scatter plots are interactive, as we can see from the full-screen settings.
