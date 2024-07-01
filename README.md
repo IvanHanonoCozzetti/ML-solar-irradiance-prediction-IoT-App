@@ -296,7 +296,7 @@ async def predict_and_display():
 			...
 			show_ML(df_models[1], total_predictions, samples) # Plots and models
 			# Publishing prediction results, for the Pico to read these results
-			command3 = f"mosquitto_pub -h '192.168.0.104' -t 'PredictionResults' -m '{final_prediction}'"
+			command3 = f"mosquitto_pub -h '192.168.xxx.xxx' -t 'PredictionResults' -m '{final_prediction}'"
 			process3 = await asyncio.create_subprocess_shell(command3, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
 		else:
 			break
@@ -314,7 +314,7 @@ within the *command* variables, we see general Mosquitto parameters:
 - `mosquitto_sub` indicates that this command is for subscribing
 - `mosquitto_pub` indicates that this command is for publishing
 - `-h` to indicate a hostname
-- `192.168.0.104` is the IP of the host used
+- `192.168.xxx.xxx` is the IP of the host used 
 - `-t` is to denote the topic
 - `HumidTempPredict`,`PredictionResults` are the topics used <br>
 The *processes* variables include some general process parameters such as:
