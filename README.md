@@ -467,7 +467,7 @@ B. **Pico**<br>
 
 The prediction received from the ML client is printed out on the terminal. Then, depending on the solar irradiance value (from 0 to 1800), it turns on the LED that is sorted in sequence.<br>
 In other words, if the solar irradiance is within the lowest values (between 0 and 200), it will trigger the very first green LED for 5 seconds, and then turn it off.<br>
-Similarly, as solar irradiance predictions are higher, the LEDs towards the follow and red colors turn on (the highest being above 1600, the very last red LED).<br>
+Similarly, as solar irradiance predictions are higher, the LEDs towards the follow and red colors turn on (the highest being above 1601, the very last red LED).<br>
 This is handled by the means of a dictionary, with tuples as key ranges, and values denoting the GPIO pin, which is also in series to the LEDs order:
 ```python
 irradiance_level_led = {
@@ -511,6 +511,23 @@ Scatter plots are interactive, as we can see from the full-screen settings.<br>
 ![pico_setup](/images/dashboard/pico_setup.png)
 #### Pico Prediction Request and Response
 ![pico_data](/images/dashboard/pico_data.png)
+
+
+### Finalizing The Design
+To avoid making this document even longer, I have not included any additional images, as all images shown regarding the dashboard, code, and pico pinout in the tasks above, represent the **final** version.<br>
+Only the video presentation will be shown by the end.<br>
+
+Overall, the project worked out very well. Although this is extensive documentation of it, I have left out **a lot** of considerations and issues.<br>
+For example, the high number of hours spent on understanding the dataset to logically analyze the input data, correlations, and relationships between input and output, and training the models accordingly. Which includes the data science part of the project; hyperparameter searching, model selection, cross-validation, and other machine learning techniques that were necessary to produce useful data.<br>
+This also includes learning and understanding a lot of concepts in physics, different measures and standards (such as w/m2, kw/m2, instant/per day/per hour/per year...), and proper breakdown and consideration of these in practical and numerical data.<br>
+All these played a bit role in good or bad performance, which was its unique separate issue.<br>  
+In addition, editors, environment, and Linux OS issues are unavoidable, and take a long time to fix sometimes. 
+
+I believe that the current implementation is a solid ground to expand and improve it into a very sophisticated system.<br>
+Of course, this does not mean that there are no improvements to make (better datasets fitting the weather of the region, further data analysis and ML model correction, introducing more sophisticated sensors, and so on...). One could also spend **a lot more time** making the system more object-oriented, with a more defined responsibility division (perhaps with an MVC approach).
+
+However, the project presents a solid collection of many techniques and areas, of different natures, working all together correctly: web/network hosting, asynchronous programming, concurrency, parallelism, machine learning training/testing/validating/predicting, host/model memory caching, IoT sensor data, full-duplex transmission/communication (all of these through a machine, but also a micro-component), among others.<br>
+That is not so easy to achieve, and the final performance achieved by the system showcases and represents a good example of its implementation.
 
 ---
 
