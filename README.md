@@ -352,7 +352,7 @@ This way, coroutines will be wrapped in and scheduled in the event loop.
 
 
 ### Transmitting the data & connectivity
-Connections and data communication happen via wifi (in this concrete implementation, LoRaWAN could be used in a very similar way).<br>
+Connections and data communication happen via wifi (in this concrete implementation, a LoRa module could be used in a very similar way).<br>
 As provided before, [Mosquitto](https://mosquitto.org/) is used to communicate with clients through the broker MQTT. Mosquitto is lightweight and very useful for both low-power devices, as well as servers.<br>
 
 Regarding network requirements, it is important to note that you may need to set a network using 2.4GHz and not 5GHz since the RP Pico WH won't support 5GHz. <br>
@@ -361,6 +361,8 @@ First, be sure to have completed all prior setup steps, including cloning this r
 The communication of MQTT from the machine learning client is performed through commands and sub-processes, as provided [here](#the-code).<br>
 Subscribing to a topic in the following way:
 ```python
+import subprocess
+...
 command2 = "mosquitto_sub -h '192.168.xxx.xxx' -t 'HumidTempPredict'"
 process2 = await asyncio.create_subprocess_shell(command2, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
 ```
@@ -395,8 +397,38 @@ As you can notice, there 3 topics:
 A great advantage of this approach is that predictions are not deliberately made from the machine learning/dashboard host client, but rather upon the other client's requests (in this case the pico)
 2. `MQTT_TOPIC2 = "HumidTempRealTime"`: This is the real-time data, and is sent **every 0.5 seconds**.<br>
 Now, these two topics are **concurrent**, meaning that once a prediction request is sent, real-time data is not sent (this is instantly done, so it does not reflect any delay on the dashboard, it is smoothly done).
-3. `MQTT_TOPIC_SUB = "PredictionResults"`: This topic is executed through the second client settings, called *client_listener*. This topic is for reading the machine learning predictions produced by the machine learning client.<br> 
+3. `MQTT_TOPIC_SUB = "PredictionResults"`: This topic is executed through the second client settings, called *client_listener*. This topic is for reading the machine learning predictions produced by the machine learning client.<br>
+
 **Topics 1 and 2 run in parallel with topic 3. This is achieved by the simple implementation of threads in Micropython, which allows us to run the publishing-related methods in core zero, while subscribing and presenting the result with core 1**.
+To achieve two tasks running in parallel in the Pico, one on each core, we use the following:
+```python
+import _thread
+...
+# Publish function (publishes data)
+def publish_thread():
+	...
+
+# Reads predictions made
+def subscriber_thread():
+	...
+...
+def main()
+    ...
+    # Run subscriber thread in core 1
+    sub_thread = _thread.start_new_thread(subscriber_thread, ())  # <- This start_new_thread takes tuples, for parameters and so on, hence the ().
+    # Run publisher thread in core 0
+    publish_thread()
+```
+#### Design Choices, Data Transmission & Wireless Protocols
+Generally speaking, the current project and implementation are for personal investigation and application, with the possibility to expand into scientific research and analysis purposes.<br>
+
+If we consider the first example mentioned in [Objective](#objective) (set-up and correction of solar panels' directions and angles), wifi would be just fine. There is no need for low power consumption or large area coverage.<br>
+For that example, this same implementation could be used, making the design the most appropriate (wifi/Mosquitto/MQTT).
+
+If we were going to consider the second idea mentioned in the [Objective](#objective) section (diffuse solar irradiance, with many IoT clients throughout a larger area, or entire country), then a LoRa module should be introduced.<br>
+This is because LoRa can cover very long ranges and still be low consumption in comparison to wifi.  Possibly, one could consider LTE as an alternative option. **However**, high-speed data transmission is not a must for this project, therefore, making low-power consumption more attractive, such as with LoRa.<br>
+
+
 
 ### Presenting Data, Dashboard, and Final Design
 The images below represent the settings and data presentation during the prototype as well as the final design.<be>
