@@ -1,4 +1,4 @@
-# Machne Learning Solar Irradiance Prediction IoT Application
+# Machine Learning Solar Irradiance Prediction IoT Application
 IoT web application that predicts solar irradiance by using Machine Learning algorithms in Python: Raspberry Pi Pico &amp; OpenWeatherMap API.<br>
 **Ivan Hanono Cozzetti, ih222sf**
 
@@ -45,7 +45,7 @@ Then, the data gathered could help for investigation and research of many differ
 *What insights will this project give?*  <br>
 This project does cover and provide good insight into a wide range of areas:
 - SkLeran widely used model and algorithms: How to set them up, set hyperparameters, learn about fitting and predicting (in this case, for a Regression problem)
-- StreamLit: An open-source framework to build and deploy web applications, which is very good for data-based applications, with advanced data science tools, such as interactive plots.
+- Streamlit: An open-source framework to build and deploy web applications, which is very good for data-based applications, with advanced data science tools, such as interactive plots.
 - Connectivity with Mosquitto & Umqtt
 - Implementation of asynchronous programming and threads: Implemented between real-time data display, ML prediction computation, display of predictions, and MQTT publishing.<br>
   This also includes basic utilization of `_threads` for the RP Pico, which is simple to implement, but highly valuable to achieve parallelism on the Pico as a full-duplex transmitter (acting as publisher with core 0 and subscriber with core 1).
@@ -215,6 +215,22 @@ In the images below, we do not really see the "most" optimal position (the most 
 
 Regarding the setup, it can indeed be used in production as the configuration or components present no limitation for the practical implementation.<br>
 Furthermore, with the availability of some additional sensors, one could expand the current implementation. As an example, the features fetched from the API (pressure, wind speed, and direction), could be introduced to this setup (some of these sensors are a bit more complicated to get, but it is possible).
+
+### Electrical calculations
+| Component  | Consumption in Milliamperes per hour (mAh) |
+|---|---|
+| Raspberry Pi Pico WH | 45$`mAh`$ |  
+| Digital temperature and humidity sensor DHT11 | 1$`mAh`$ (average maximum) | 
+| Photoresistor CdS 4-7 kohm | 1.5$`mAh`$ (average) |  
+| LED 5mm 1500mcd | 25$`mAh`$ |
+
+It is important to notice that although many LEDs are integrated, only one is used at the time.<br>
+Furthermore, the photoresist, humidity/temperature, and Pico's values are average (per hour).
+
+Adding all values: <br>
+ $`45 + 1  + 1.5 + 25 = 72.5mAh`$ <br>
+Therefore, the total power consumption for the current system is $`72.5mAh`$.
+
 
 ## Platform
 The platform used is [Streamlit](https://streamlit.io/).<br>
@@ -514,7 +530,9 @@ Scatter plots are interactive, as we can see from the full-screen settings.<br>
 
 ## Finalizing The Design
 To avoid making this document even longer, I have not included any additional images, as all images shown regarding the dashboard, code, and pico pinout in the tasks above, represent the **final** version.<br>
-Only the video presentation will be shown by the end.<br>
+Only the video presentation will be shown by the end.<be>
+
+<!--- [![Video]()--->
 
 Overall, the project worked out very well. Although this is extensive documentation of it, I have left out **a lot** of considerations and issues.<br>
 For example, the high number of hours spent on understanding the dataset to logically analyze the input data, correlations, and relationships between input and output, and training the models accordingly. Which includes the data science part of the project; hyperparameter searching, model selection, cross-validation, and other machine learning techniques that were necessary to produce useful data.<br>
