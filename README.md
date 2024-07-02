@@ -532,9 +532,9 @@ Scatter plots are interactive, as we can see from the full-screen settings.<br>
 To avoid making this document even longer, I have not included any additional images, as all images shown regarding the dashboard, code, and pico pinout in the tasks above, represent the **final** version.<br>
 Only the video presentation will be shown:<br>
 
-[![First Video](/images/dashboard/dashboard1.png)](https://raw.githubusercontent.com/IvanHanonoCozzetti/ML-solar-irradiance-prediction-IoT-App/main/videos/implementation_deployed.mp4)
+[First Video](https://raw.githubusercontent.com/IvanHanonoCozzetti/ML-solar-irradiance-prediction-IoT-App/main/videos/implementation_deployed.mp4)
 
-[![Post Video](/images/dashboard/dashboard1.png)](https://raw.githubusercontent.com/IvanHanonoCozzetti/ML-solar-irradiance-prediction-IoT-App/main/videos/final.mp4)
+[Post Video](https://raw.githubusercontent.com/IvanHanonoCozzetti/ML-solar-irradiance-prediction-IoT-App/main/videos/final.mp4)
 
 <!--- <video src="https://raw.githubusercontent.com/IvanHanonoCozzetti/ML-solar-irradiance-prediction-IoT-App/main/videos/implementation_deployed.mp4" alt="Video"></video> --->
 
