@@ -533,8 +533,7 @@ To avoid making this document even longer, I have not included any additional im
 Only the video presentation will be shown by the end.<be>
 
 
-
-<video src='https://github.com/IvanHanonoCozzetti/ML-solar-irradiance-prediction-IoT-App/blob/main/videos/implementation_deployed.mp4' width=180/></video>
+<video src='https://raw.githubusercontent.com/IvanHanonoCozzetti/ML-solar-irradiance-prediction-IoT-App/main/videos/implementation_deployed.mp4' width=180/></video>
 
 Overall, the project worked out very well. Although this is extensive documentation of it, I have left out **a lot** of considerations and issues.<br>
 For example, the high number of hours spent on understanding the dataset to logically analyze the input data, correlations, and relationships between input and output, and training the models accordingly. Which includes the data science part of the project; hyperparameter searching, model selection, cross-validation, and other machine learning techniques that were necessary to produce useful data.<br>
