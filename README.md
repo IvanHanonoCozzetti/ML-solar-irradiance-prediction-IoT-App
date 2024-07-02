@@ -521,7 +521,7 @@ Scatter plots are interactive, as we can see from the full-screen settings.<br>
 #### Dashboard RMSE and Predicted Values
 ![dashboard4](/images/dashboard/dashboard4.png)
 #### Dashboard Predictions Scatter Plot
-![scatt_predictins](/images/dashboard/scatt_predictins.png)
+![scatt_predictins](/images/dashboard/scatt_predictions.png)
 #### Pico print-out setup
 ![pico_setup](/images/dashboard/pico_setup.png)
 #### Pico Prediction Request and Response
