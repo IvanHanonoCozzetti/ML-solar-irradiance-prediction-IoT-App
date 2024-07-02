@@ -448,7 +448,7 @@ This is because LoRa can cover very long ranges and still be low consumption in 
 
 #### Data handling
 It must be noted that this implementation does not use any database. In practice, is designed to work and perform in real-time only.<br>
-There is an already implemented approach to analyze and work with `CSV` data. If desired, one could use this same implementation to download the received data (this means simply copying and pasting the `output.csv` approach to instead print the data read from the pico). This is not implemented simply because it is not relevant to the project.<be>
+There is an already implemented approach to analyze and work with `CSV` data. If desired, one could use this same implementation to download the received data (this means simply copying and pasting the `output.csv` approach to instead print the data read from the pico). This is not implemented simply because it is not relevant to the project.<br>
 
 #### Automation and Triggers of Data
 This project implements full-duplex transmission from both the RP Pico client and the Machine Learning Predictor & web application handler.<br>
@@ -530,15 +530,14 @@ Scatter plots are interactive, as we can see from the full-screen settings.<br>
 
 ## Finalizing The Design
 To avoid making this document even longer, I have not included any additional images, as all images shown regarding the dashboard, code, and pico pinout in the tasks above, represent the **final** version.<br>
-Only the video presentation will be shown by the end.<be>
+Only the video presentation will be shown:<br>
 
-<!--- [![watch](/images/dashboard/dashboard1.png)](https://raw.githubusercontent.com/IvanHanonoCozzetti/ML-solar-irradiance-prediction-IoT-App/main/videos/implementation_deployed.mp4) --->
+[![First Video](/images/dashboard/dashboard1.png)](https://raw.githubusercontent.com/IvanHanonoCozzetti/ML-solar-irradiance-prediction-IoT-App/main/videos/implementation_deployed.mp4)
 
-<!--- <video src='https://raw.githubusercontent.com/IvanHanonoCozzetti/ML-solar-irradiance-prediction-IoT-App/main/videos/implementation_deployed.mp4' width=180/></video> --->
+[![Post Video](/images/dashboard/dashboard1.png)](https://raw.githubusercontent.com/IvanHanonoCozzetti/ML-solar-irradiance-prediction-IoT-App/main/videos/final.mp4)
 
-<p align="center">
-  <img src="videos/implementation_deployed.mp4" alt="Video">
-</p>
+<!--- <video src="https://raw.githubusercontent.com/IvanHanonoCozzetti/ML-solar-irradiance-prediction-IoT-App/main/videos/implementation_deployed.mp4" alt="Video"></video> --->
+
 
 Overall, the project worked out very well. Although this is extensive documentation of it, I have left out **a lot** of considerations and issues.<br>
 For example, the high number of hours spent on understanding the dataset to logically analyze the input data, correlations, and relationships between input and output, and training the models accordingly. Which includes the data science part of the project; hyperparameter searching, model selection, cross-validation, and other machine learning techniques that were necessary to produce useful data.<br>
