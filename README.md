@@ -185,7 +185,8 @@ This will install:
 ## Putting everything together and pinout
 The connections can be done as follows (the actual pinout in the images below slightly differs due to slight limitations at Wokwi, and different breadboard settings).
 The important points are properly recognizing the Ground, 3.3V, and output reading pins, to avoid burning any components.<br>
-**Note that ideally** you want to set the photoresistor the furthest away from the LEDs, such that the light generated from the LEDs does not change the light reading data.<br>
+> [!Note]
+> **Ideally** you want to set the photoresistor the furthest away from the LEDs, such that the light generated from the LEDs does not change the light reading data.<br>
 In the images below, we do not really see the "most" optimal position (the most optimal position is the photoresist on the further left corner, and the LEDs a bit closer to the Pico).
 - The LED's cathode (negative) is the "short leg", while the anode (positive) is the "long leg".<br>
   The negative side can be directly connected to the ground rail (-) or through a jumper cable. The positive should be connected with a resistor (between 100ohm to 330ohm).<br>
@@ -257,10 +258,12 @@ Finally, if you are very bad at, or really dislike, the front-end of making a we
 ## The code
 
 Code-wise, we can divide this project into a few levels: connectivity, data transmission, data processing, processes, and visualization.<br>
-For the sake of simplicity (and not going too deep into any concept), we will cover general data processing, processes/tasks (threads and asynchronous programming), and basic visualization in Streamlit.<br>
+> [!Note]
+This is a **very simplified** overview: For the sake of simplicity (and not going too deep into any concept), we will cover general data processing, processes/tasks (threads and asynchronous programming), and machine learning programming.<br>
 This is because most of the connectivity and MQTT client setup and communication is very standard, as in almost any other wifi-based MQTT communication.<br>
 
-First, we will cover a bit of asynchronous programming, implemented in the program with the keywords `async` and `await`.<br>
+### Asynchronous Programming and Parallel Threads
+First, we will cover a bit of asynchronous programming, implemented in the program with the keywords `async` and `await`. Then, some of the parallel execution is via threads.<br>
 Initially, the receiving and processing of data, as well as  the real-time display of data, were handled with **Threads**. Unfortunately, due to issues in processing the threads and displayed data with Streamlit, asynchronous processes worked best, achieving a concurrency with very small delays between real-time and predicted data.<br>
 This is achieved because we still continue working with threads on the back-end of the program, as the **machine learning models and their predictions are processed with a separate thread within the asynchronous defined method** (mixing these two can become very messy very quickly).<br>
 
@@ -269,12 +272,10 @@ For now, the important things to understand are that:
 - `async def` is used to declare an asynchronous function, which is needed in order to implement the `await` in the method.
 - `await` allows us to pause the execution of a function, until a *[coroutine](https://en.wikipedia.org/wiki/Coroutine)* is completed, letting us run other tasks instead of just waiting.
   
-Let us look into the `predict_and_display()` method that reads data, runs predictions within the asynchronous method in a thread (the dots ... represent removed code that is not strictly necessary for this explanation):
+Let us look into the `predict_and_display()` method that reads data, and runs predictions within the asynchronous method in a thread (the dots ... represent removed code that is not strictly necessary for this explanation):
 ```python
 async def predict_and_display():
-	# Subscribing to the Broker
 	command2 = "mosquitto_sub -h '192.168.xxx.xxx' -t 'HumidTempPredict'"
-	# process2 = subprocess.Popen(command2, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=1, universal_newlines=True)
 	process2 = await asyncio.create_subprocess_shell(command2, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
   ...
 	while True:
@@ -292,32 +293,23 @@ async def predict_and_display():
 			current_temp_farenheit = (current_temp_celsius*1.8)+32
 			...
 			updated_params = update_parameters(curren_humidity_val, current_temp_farenheit)
-			# to_thread is a function in python 3.9 that asynchronously runs a function in a separate thread
-			# This is needed to handle the computation time that it takes for the ML to run and predict
-			# And the main adventage is that we can continue showing real-time data while running the models
 			df_models = await asyncio.to_thread(run_data, updated_params)
-
-			# If it is between dark and very dark, e.g. 10,000 until 30,000 -> weight is prediction is zero. 
-			# If it is very bright, e.g. 65,000 -> weight is prediction * 1.325. 
 			if current_brightness > 30000:
 				bright_weight = ((current_brightness/100000)*0.5)+1
 			else:
 				bright_weight = 1 # in other words, no weight: this is because anything below 30k is pretty dark...
-
 			final_prediction = df_models[0][0]*bright_weight
 			total_predictions.append(final_prediction)
 			samples.append(counter)
 			write_results(updated_params, current_brightness, bright_weight, current_temp_celsius, df_models[0][0], final_prediction)  # Adding brightness weight
 			...
 			show_ML(df_models[1], total_predictions, samples) # Plots and models
-			# Publishing prediction results, for the Pico to read these results
 			command3 = f"mosquitto_pub -h '192.168.xxx.xxx' -t 'PredictionResults' -m '{final_prediction}'"
 			process3 = await asyncio.create_subprocess_shell(command3, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
 		else:
 			break
 		await asyncio.sleep(0.5)
 
-    # Once the process is stopped, to "clean" the subprocess
 	process2.stdout.close()
 	return_code = process2.wait()
 	if return_code:
@@ -356,7 +348,7 @@ Note that `to_thread` is a function in Python 3.9, so older versions won't have 
 The `realtime_data_sidebar()` works similarly, however, with higher concerns of real-time data display.
 
 Finally, both main tasks (by main, I simply mean the tasks that produced dashboard data, while subscribing and publishing data) are called from the main function:
-```python=
+```python
 async def main():
 	realtime_sidebar = asyncio.create_task(realtime_data_sidebar()) # Task1
 	pred_and_display = asyncio.create_task(predict_and_display())   # Task2
@@ -364,6 +356,67 @@ async def main():
 ```
 Which returns future aggregating results from the given co-routines (in which they must share the same event loop).<br>
 This way, coroutines will be wrapped in and scheduled in the event loop.
+
+### Machine Learning Models & Algorithms
+**Relevant Libraries and Imports**
+```python
+import pandas as pd
+import numpy as np
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
+from sklearn.neighbors import KNeighborsRegressor
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error as mse
+from math import sqrt
+```
+**Main Code**
+
+```python
+def building_machine_learning_models(current_params):
+	X = df[['Temperature', 'Pressure', 'Humidity', 'WindDirection(Degrees)', 'Speed']]
+	y = df['Radiation']
+	X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, shuffle=True)
+	models = [RandomForestRegressor(n_estimators=170, max_depth=25),
+	          DecisionTreeRegressor(max_depth=30),
+	          GradientBoostingRegressor(learning_rate=0.01, n_estimators=200, max_depth=5),
+			  KNeighborsRegressor(n_neighbors=7)]
+	df_models = pd.DataFrame()
+	temporary_hold = {}
+	for model in models:
+		print(model)
+		m = str(model)
+		temporary_hold['Model'] = m[:m.index('(')]
+		model.fit(X_train, y_train)
+		temporary_hold['RMSE_Radiation'] = sqrt(mse(y_test, model.predict(X_test)))
+		temporary_hold['Pred Value'] = model.predict(pd.DataFrame(current_params, index=[0]))[0]
+		print('RMSE score', temporary_hold['RMSE_Radiation'],"\n")
+		df_models = df_models._append([temporary_hold])
+	df_models.set_index('Model', inplace=True)
+	pred_value = df_models['Pred Value'].iloc[[df_models['RMSE_Radiation'].argmin()]].values.astype(float)
+	return pred_value, df_models
+```
+
+First, we start setting `X` and `y` variables with the `feature columns` and `predictions` respectively.<br>
+We then split the data into training and testing, using 20 percent of the dataset for testing, as indicated in the parameter `test_size=0.2`.<br>
+Then, we proceed to set the specific model algorithms we will use to produce the predictions, as well as the hyperparameters.<br>
+In this case, we are using:<br> 
+| RandomForestRegressor | DecisionTreeRegressor | GradientBoostingRegressor | KNeighborsRegressor |
+|---|---|---|---|
+
+We then generate a data frame variable that will hold all models' performance through RMSE, as well as the prediction for each of the models.<br>
+Next, we iterate all models within the `models` array, and for each of them we:
+- Conver to string representation the models
+- Getting the name from the string representation (names are followed by parentheses, to be divided/separated)
+- Fit the models with the training data
+- Calculating RMSE (Root Mean Square Error) of the model using the testing set
+- Producing a prediction with the current read parameters
+- Add the results to the `df_models` data frame.<br>
+Finally, the last line of code `df_models['Pred Value'].iloc[[df_models['RMSE_Radiation'].argmin()]].values.astype(float)` does the following:
+- `.argmin` gives us the model with lowest value in df_models on the column RMSE_Radiation, AKA the model with the lowest RMSE
+- `.iloc` find that model using the index
+- The double `[[]]` is used to assure that we get a DataFrame, since with .values we conver it into a number array, as a float val.<br>
+To finally return the prediction value and the models (including models results and perforamnce)
+	
 
 
 ## Transmitting the data & connectivity
