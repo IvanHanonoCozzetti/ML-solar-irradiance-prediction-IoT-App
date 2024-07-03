@@ -222,7 +222,7 @@ Furthermore, with the availability of some additional sensors, one could expand 
 |---|---|
 | Raspberry Pi Pico WH | 45$`mAh`$ |  
 | Digital temperature and humidity sensor DHT11 | 1$`mAh`$ (average maximum) | 
-| Photoresistor CdS 4-7 kohm | 1.5$`mAh`$ (average) |  
+| Photoresistor CdS 4-7 kohm | 1.5$`mAh`$ (high average) |  
 | LED 5mm 1500mcd | 25$`mAh`$ |
 
 It is important to notice that although many LEDs are integrated, only one is used at the time.<br>
@@ -232,6 +232,13 @@ Adding all values: <br>
  $`45 + 1  + 1.5 + 25 = 72.5mAh`$ <br>
 Therefore, the total power consumption for the current system is $`72.5mAh`$.
 
+If we were considering implementing this system in a portable version, we could introduce a power bank of $`25,000 mAh`$, then:<br>
+$` 25,000 mAh/72.5mAh ≈ 345 hours `$.<br>
+Which means we could run this system for 345 hours with it.<br>
+
+However, in a realistic scenario, one should consider weather conditions such as temperature, efficiency, and consumption fluctuations.<br>
+Therefore, considering a 75% to 85% actual performance over the given results, we then get $`344.827586207 * 0.75 ≈ 260 hours`$ and  $`344.827586207 * 0.85 ≈ 293 hours`$.<br>
+Concluding that a realistic duration for a 25,000 mAh power bank would be between 260 and 293 hours.
 
 ## Platform
 The platform used is [Streamlit](https://streamlit.io/).<br>
