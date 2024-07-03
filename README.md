@@ -122,7 +122,8 @@ include_dir /etc/mosquitto/conf.d
 # ADDED TO LISTEN TO OTHER DEVICES IN THE NETWORK
 listener 1883 YOUR-BROKER-IP
 ```
-*NOTE: Replace YOUR-BROKER-IP with the device IP you will use as a broker, i.e. 192.168.xxx.xxx*
+>[!WARNING]
+>Replace YOUR-BROKER-IP with the device IP you will use as a broker, i.e. 192.168.xxx.xxx*
 
 #### Raspberry Pi Pico software setup (firmware, MicroPython and MQTT)
 **Firmware & MicroPython**
@@ -272,7 +273,8 @@ This is because most of the connectivity and MQTT client setup and communication
 ### Asynchronous Programming and Parallel Threads
 First, we will cover a bit of asynchronous programming, implemented in the program with the keywords `async` and `await`. Then, some of the parallel execution is via threads.<br>
 Initially, the receiving and processing of data, as well as  the real-time display of data, were handled with **Threads**. Unfortunately, due to issues in processing the threads and displayed data with Streamlit, asynchronous processes worked best, achieving a concurrency with very small delays between real-time and predicted data.<br>
-This is achieved because we still continue working with threads on the back-end of the program, as the **machine learning models and their predictions are processed with a separate thread within the asynchronous defined method** (mixing these two can become very messy very quickly).<br>
+>[!IMPORTANT]
+>This is achieved because we still continue working with threads on the back-end of the program, as the **machine learning models and their predictions are processed with a separate thread within the asynchronous defined method** (mixing these two can become very messy very quickly).<br>
 
 For now, the important things to understand are that:
 - `import asyncio` to use the appropriate library
@@ -418,11 +420,12 @@ Next, we iterate all models within the `models` array, and for each of them we:
 - Calculating RMSE (Root Mean Square Error) of the model using the testing set
 - Producing a prediction with the current read parameters
 - Add the results to the `df_models` data frame.<br>
-Finally, the last line of code `df_models['Pred Value'].iloc[[df_models['RMSE_Radiation'].argmin()]].values.astype(float)` does the following:
-- `.argmin` gives us the model with lowest value in df_models on the column RMSE_Radiation, AKA the model with the lowest RMSE
+
+The last line of code `df_models['Pred Value'].iloc[[df_models['RMSE_Radiation'].argmin()]].values.astype(float)` does the following:
+- `.argmin` gives us the model with the lowest value in df_models on the column RMSE_Radiation, AKA the model with the lowest RMSE
 - `.iloc` find that model using the index
-- The double `[[]]` is used to assure that we get a DataFrame, since with .values we conver it into a number array, as a float val.<br>
-To finally return the prediction value and the models (including models results and perforamnce)
+- The double `[[]]` is used to assure that we get a DataFrame, since with .values we convert it into a number array, as a float value.<br>
+Finally, returning the prediction value and the models (including model results and performance)
 	
 
 
@@ -474,7 +477,8 @@ A great advantage of this approach is that predictions are not deliberately made
 Now, these two topics are **concurrent**, meaning that once a prediction request is sent, real-time data is not sent (this is instantly done, so it does not reflect any delay on the dashboard, it is smoothly done).
 3. `MQTT_TOPIC_SUB = "PredictionResults"`: This topic is executed through the second client settings, called *client_listener*. This topic is for reading the machine learning predictions produced by the machine learning client.<br>
 
-**Topics 1 and 2 run in parallel with topic 3. This is achieved by the simple implementation of threads in Micropython, which allows us to run the publishing-related methods in core zero, while subscribing and presenting the result with core 1**.
+>[!TIP]
+>**Topics 1 and 2 run in parallel with topic 3. This is achieved by the simple implementation of threads in Micropython, which allows us to run the publishing-related methods in core zero, while subscribing and presenting the result with core 1**.
 To achieve two tasks running in parallel in the Pico, one on each core, we use the following:
 ```python
 import _thread
@@ -591,12 +595,8 @@ Scatter plots are interactive, as we can see from the full-screen settings.<br>
 ## Finalizing The Design
 To avoid making this document even longer, I have not included any additional images, as all images shown regarding the dashboard, code, and pico pinout in the tasks above, represent the **final** version.<br>
 Only the video presentation will be shown:<br>
-
-[First Video](https://raw.githubusercontent.com/IvanHanonoCozzetti/ML-solar-irradiance-prediction-IoT-App/main/videos/implementation_deployed.mp4)
-
-[Post Video](https://raw.githubusercontent.com/IvanHanonoCozzetti/ML-solar-irradiance-prediction-IoT-App/main/videos/final.mp4)
-
-<!--- <video src="https://raw.githubusercontent.com/IvanHanonoCozzetti/ML-solar-irradiance-prediction-IoT-App/main/videos/implementation_deployed.mp4" alt="Video"></video> --->
+| [Implementation Run Video](https://raw.githubusercontent.com/IvanHanonoCozzetti/ML-solar-irradiance-prediction-IoT-App/main/videos/implementation_deployed.mp4) | [Post Processing Video](https://raw.githubusercontent.com/IvanHanonoCozzetti/ML-solar-irradiance-prediction-IoT-App/main/videos/final.mp4) |
+|---|---|
 
 
 Overall, the project worked out very well. Although this is extensive documentation of it, I have left out **a lot** of considerations and issues.<br>
