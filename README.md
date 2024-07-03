@@ -400,7 +400,7 @@ First, we start setting `X` and `y` variables with the `feature columns` and `pr
 We then split the data into training and testing, using 20 percent of the dataset for testing, as indicated in the parameter `test_size=0.2`.<br>
 Then, we proceed to set the specific model algorithms we will use to produce the predictions, as well as the hyperparameters.<br>
 In this case, we are using:<br> 
-| RandomForestRegressor | DecisionTreeRegressor | GradientBoostingRegressor | KNeighborsRegressor |
+| [RandomForestRegressor](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html) | [DecisionTreeRegressor](https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeRegressor.html) | [GradientBoostingRegressor](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.GradientBoostingRegressor.html) | [KNeighborsRegressor](https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KNeighborsRegressor.html) |
 |---|---|---|---|
 
 We then generate a data frame variable that will hold all models' performance through RMSE, as well as the prediction for each of the models.<br>
