@@ -2,12 +2,9 @@
 IoT web application that predicts solar irradiance by using Machine Learning algorithms in Python: Raspberry Pi Pico &amp; OpenWeatherMap API.<br>
 **Ivan Hanono Cozzetti, ih222sf**
 
-![presentation](https://github.com/IvanHanonoCozzetti/ML-solar-irradiance-prediction-IoT-App/assets/64793737/7d06e1af-d22d-4559-a49f-2d61d442e5d6)
+![presentation](https://github.com/IvanHanonoCozzetti/ML-solar-irradiance-prediction-IoT-App/blob/main/videos/presentation.gif)
 
-
-
-#### This is a description and tutorial on building a Machine Learning solar irradiance predictor, using real-time data gathered from a Raspberry Pi Pico WH and [OpenWeatherMap](https://openweathermap.org/) API.
-
+This is a description and tutorial on building a Machine Learning solar irradiance predictor, using real-time data gathered from a [Raspberry Pi Pico WH](https://www.raspberrypi.com/documentation/microcontrollers/raspberry-pi-pico.html#raspberry-pi-pico-w-and-pico-wh) and [OpenWeatherMap](https://openweathermap.org/) API.
 The predictions made here are for [Direct Solar Irradiance](https://globalsolaratlas.info/support/faq) (also known as Beam Radiation).<br>
 Note that this differs from diffuse solar radiation. This means that the prediction represents the solar irradiance on a direct surface.<br>
 Meteorological data was gathered from [HI-SEAS weather station](https://www.hi-seas.org/), which lasted 4 months and was collected from an area in Hawaii with similar conditions to Mars. 
