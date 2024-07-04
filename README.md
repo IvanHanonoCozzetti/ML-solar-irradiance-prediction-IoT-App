@@ -1,4 +1,4 @@
-# Machine Learning Solar Irradiance Prediction - IoT Web Application
+# Machine Learning Solar Irradiance Prediction<br>IoT Web Application
 IoT web application that predicts solar irradiance by using Machine Learning algorithms in Python: Raspberry Pi Pico &amp; OpenWeatherMap API.<br>
 **Ivan Hanono Cozzetti, ih222sf**
 
