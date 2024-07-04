@@ -3,9 +3,6 @@ IoT web application that predicts solar irradiance by using Machine Learning alg
 **Ivan Hanono Cozzetti, ih222sf**
 
 
-https://github.com/IvanHanonoCozzetti/ML-solar-irradiance-prediction-IoT-App/assets/64793737/b4b76194-9c6b-49e5-ae64-0d67a99efef5
-
-
 #### This is a description and tutorial on building a Machine Learning solar irradiance predictor, using real-time data gathered from a Raspberry Pi Pico WH and [OpenWeatherMap](https://openweathermap.org/) API.
 
 The predictions made here are for [Direct Solar Irradiance](https://globalsolaratlas.info/support/faq) (also known as Beam Radiation).<br>
