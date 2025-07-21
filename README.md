@@ -96,7 +96,7 @@ Visual Studio Code should be installed after that.
 
 #### Mosquitto Installation
 1. Simply run the following commands in a new terminal<br>
-`sudo apt install mosquitto`<br>
+`sudo apt install mosquitto && sudo apt install mosquitto-clients`<br>
 `sudo apt-get update`<br>
 2. To verify the installation you can run mosquitto on the same terminal by writing `mosquitto`.
 3. Then stop the terminal if it is already running (and run `sudo systemctl stop mosquitto & sudo pkill mosquitto` to verify it isn't running)
